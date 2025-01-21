@@ -1,0 +1,8 @@
+#files
+.env
+/backend/.env
+
+#folders
+/venv
+/database/papers
+/backend
