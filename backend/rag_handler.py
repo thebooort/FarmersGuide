@@ -30,16 +30,17 @@ SYSTEM_MESSAGE = SystemMessage(
 
 # Initialize ChromaDB for RAG retrieval
 embedding_function = OpenAIEmbeddings()
-vector_store = Chroma(persist_directory="./backend/chroma_db", embedding_function=embedding_function)
+vector_store = Chroma(persist_directory="./database/chroma_db", embedding_function=embedding_function)
 retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
-def generate_response(user_query: str, chat_history: list = None) -> dict:
+def generate_response(user_query: str, chat_history: list = None, survey_context: dict = None) -> dict:
     """
-    Generates a response using GPT-4o Mini, incorporating relevant RAG documents.
+    Generates a response using GPT-4o Mini, incorporating relevant RAG documents and survey context.
 
     Args:
-        user_query (str): User's question.
+        user_query (str): User's question, including context.
         chat_history (list): Previous chat messages for context (optional).
+        survey_context (dict): Survey data from the user (optional).
 
     Returns:
         dict: AI response in JSON format.
@@ -58,15 +59,37 @@ def generate_response(user_query: str, chat_history: list = None) -> dict:
     retrieved_docs = retriever.invoke(user_query)
     retrieved_texts = "\n".join([doc.page_content for doc in retrieved_docs])
 
-    # Append retrieved context to user query
+    # Log retrieved documents for debugging
+    print("\n🔍 Retrieved Documents:")
+    for doc in retrieved_docs:
+        print(f"- {doc.metadata.get('title', 'Untitled')}: {doc.page_content[:200]}...")
+
+    # Add survey context to the augmented query
+    survey_context_str = "No survey data available."
+    if survey_context:
+        survey_context_str = f"""
+        Farmer Information:
+        - Location: {survey_context.get('Location', 'N/A')}
+        - Crop: {survey_context.get('Crop', 'N/A')}
+        - Ecosystem: {survey_context.get('Ecosystem', 'N/A')}
+        - Agriculture Type: {survey_context.get('Agriculture', 'N/A')}
+        """
+
+    # Append retrieved context and survey context to user query
     augmented_query = f"""
     --- Relevant Research Papers ---
     {retrieved_texts}
+    ------------------------------
+    {survey_context_str}
     ------------------------------
     User Question: {user_query}
     """
 
     messages.append(HumanMessage(content=augmented_query))
+
+    # Log full context sent to the model
+    print("\n🔍 Full Context Sent to LLM:")
+    print(augmented_query)
 
     try:
         # Invoke GPT-4o Mini
@@ -76,3 +99,4 @@ def generate_response(user_query: str, chat_history: list = None) -> dict:
         return {"response": bot_response}  # ✅ Always return JSON
     except Exception as e:
         return {"error": f"❌ Error calling GPT-4o: {str(e)}"}  # ✅ Always return JSON
+
