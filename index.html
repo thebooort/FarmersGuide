@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoHack App</title>
+  <style>
+    /* General Reset */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: url('images/background.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+
+    /* Container for the app */
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9); /* Slight transparency */
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Header */
+    h1 {
+      text-align: center;
+      color: #2d6a4f; /* Nature-inspired green */
+      margin-bottom: 30px;
+    }
+
+    /* Questions */
+    .question {
+      margin-bottom: 30px;
+    }
+
+    .question h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    /* Button Group Styling */
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button-group button {
+      flex: 1 1 calc(50% - 10px); /* Makes buttons wrap and take equal space */
+      padding: 10px;
+      background-color: #52b788;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .button-group button:hover {
+      background-color: #40916c;
+      transform: scale(1.05);
+    }
+
+    .button-group button:active {
+      transform: scale(0.95);
+    }
+
+    /* Submit Button */
+    .submit-button {
+      display: block;
+      margin: 30px auto 0;
+      padding: 15px 30px;
+      background-color: #40916c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .submit-button:hover {
+      background-color: #2d6a4f;
+      transform: scale(1.05);
+    }
+
+    .submit-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Input Field Styling */
+    .text-input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    /* New Page Styles */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .paper-list {
+      margin-bottom: 20px;
+    }
+
+    .paper-list h2 {
+      font-size: 20px;
+      color: #2d6a4f;
+      margin-bottom: 10px;
+    }
+
+    .paper-list ul {
+      list-style: disc inside;
+      padding-left: 20px;
+    }
+
+    .advice-box {
+      background: rgba(245, 245, 245, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-box {
+      margin-bottom: 20px;
+    }
+
+    .chat-box textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .chat-box .button-group {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container page active" id="page1">
+  <h1>Welcome to EcoHack</h1>
+
+  <!-- Question: Where is your Farm? -->
+  <div class="question">
+    <h2>Where is your farm?</h2>
+    <input type="text" class="text-input" id="farmLocation" placeholder="Enter your farm location">
+  </div>
+
+  <!-- Question 1 -->
+  <div class="question">
+    <h2>What do you farm?</h2>
+    <div class="button-group">
+      <button type="button" data-value="coffee">Coffee</button>
+      <button type="button" data-value="wheat">Wheat</button>
+      <button type="button" data-value="rice">Rice</button>
+      <button type="button" data-value="maize">Maize</button>
+      <button type="button" data-value="soybeans">Soybeans</button>
+      <button type="button" data-value="unknown">I don't know</button>
+    </div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="question">
+    <h2>What type of farming do you practice?</h2>
+    <div class="button-group">
+      <button type="button" data-value="organic">Organic</button>
+      <button type="button" data-value="traditional">Traditional</button>
+      <button type="button" data-value="regenerative">Regenerative</button>
+      <button type="button" data-value="unknown">I don't know</button>
+    </div>
+  </div>
+
+  <!-- Question 3 -->
+  <div class="question">
+    <h2>What is your surrounding ecosystem?</h2>
+    <div class="button-group">
+      <button type="button" data-value="wetlands">Wetlands</button>
+      <button type="button" data-value="forest">Forest</button>
+      <button type="button" data-value="grasslands">Grasslands</button>
+      <button type="button" data-value="mountains">Mountains</button>
+      <button type="button" data-value="coastal">Coastal</button>
+      <button type="button" data-value="unknown">I don't know</button>
+    </div>
+  </div>
+
+  <!-- Submit Button -->
+  <button class="submit-button" id="submitBtn">Submit</button>
+</div>
+
+<div class="container page" id="page2">
+  <h1>EcoHack Results</h1>
+
+  <!-- Paper Titles -->
+  <div class="paper-list">
+    <h2>Relevant Papers</h2>
+    <ul>
+      <li>"Improving Coffee Yield Through Forest-Based Pollination"</li>
+      <li>"Traditional Farming Techniques for Colombian Coffee"</li>
+      <li>"The Role of Forests in Supporting Coffee Ecosystems"</li>
+      <li>"Optimizing Coffee Harvests in Biodiverse Areas"</li>
+    </ul>
+  </div>
+
+  <!-- Immediate Advice -->
+  <div class="advice-box">
+    <h2>Immediate Advice</h2>
+    <p>Consider planting additional native flowers to boost pollinator activity in your coffee fields. Maintaining forest cover nearby can help stabilize soil and water conditions, improving overall crop resilience.</p>
+  </div>
+
+  <!-- Chat Section -->
+  <div class="chat-box">
+    <h2>Chat with the AI</h2>
+    <textarea placeholder="Ask a question..."></textarea>
+    <div class="button-group">
+      <button>What are the best ways to protect coffee plants?</button>
+      <button>How can I attract pollinators to my farm?</button>
+      <button>What pests commonly affect coffee crops?</button>
+      <button>How does forest proximity help coffee farming?</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const selectedAnswers = {};
+
+  // Handle text input for farm location
+  document.getElementById('farmLocation').addEventListener('input', function () {
+    selectedAnswers['Farm Location'] = this.value;
+  });
+
+  // Add event listeners to buttons
+  document.querySelectorAll('.button-group button').forEach(button => {
+    button.addEventListener('click', function () {
+      const questionGroup = this.closest('.question').querySelector('h2').textContent;
+      selectedAnswers[questionGroup] = this.getAttribute('data-value');
+
+      // Highlight selected button
+      this.parentNode.querySelectorAll('button').forEach(btn => {
+        btn.style.backgroundColor = "#52b788";
+      });
+      this.style.backgroundColor = "#40916c";
+    });
+  });
+
+  // Handle submit
+  document.getElementById('submitBtn').addEventListener('click', () => {
+    document.getElementById('page1').classList.remove('active');
+    document.getElementById('page2').classList.add('active');
+  });
+
+  // Chat functionality
+  const chatTextarea = document.querySelector('.chat-box textarea');
+  const messagesDiv = document.createElement('div');
+  messagesDiv.classList.add('messages');
+  chatTextarea.parentNode.insertBefore(messagesDiv, chatTextarea);
+
+  chatTextarea.addEventListener('keypress', async function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+
+      const userMessage = chatTextarea.value.trim();
+      if (userMessage) {
+        // Display user message
+        const userMessageElement = document.createElement('p');
+        userMessageElement.classList.add('user');
+        userMessageElement.textContent = userMessage;
+        messagesDiv.appendChild(userMessageElement);
+
+        // Simulate AI response
+        const aiResponseElement = document.createElement('p');
+        aiResponseElement.classList.add('ai');
+        aiResponseElement.textContent = 'Thinking...'; // Placeholder while waiting for AI
+        messagesDiv.appendChild(aiResponseElement);
+
+        // Scroll to bottom
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        try {
+          // Send message to backend (replace URL with your actual endpoint)
+          const response = await fetch('http://127.0.0.1:5000/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage })
+          });
+
+          const data = await response.json();
+          aiResponseElement.textContent = data.response || 'No response from AI.';
+        } catch (err) {
+          console.error('Error fetching AI response:', err);
+          aiResponseElement.textContent = 'Error: Unable to contact AI.';
+        }
+
+        // Clear the input field
+        chatTextarea.value = '';
+      }
+    }
+  });
+</script>
+
+
+</body>
+</html>
