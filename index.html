@@ -173,12 +173,12 @@
   <div class="question">
     <h2>What do you farm?</h2>
     <div class="button-group">
-      <button type="button" data-value="coffee">Coffee</button>
-      <button type="button" data-value="wheat">Wheat</button>
-      <button type="button" data-value="rice">Rice</button>
-      <button type="button" data-value="maize">Maize</button>
-      <button type="button" data-value="soybeans">Soybeans</button>
-      <button type="button" data-value="unknown">I don't know</button>
+      <button type="button" data-value="Coffee">Coffee</button>
+      <button type="button" data-value="Wheat">Wheat</button>
+      <button type="button" data-value="Rice">Rice</button>
+      <button type="button" data-value="Maize">Maize</button>
+      <button type="button" data-value="Soybeans">Soybeans</button>
+      <button type="button" data-value="Unknown">I don't know</button>
     </div>
   </div>
 
@@ -186,10 +186,10 @@
   <div class="question">
     <h2>What type of farming do you practice?</h2>
     <div class="button-group">
-      <button type="button" data-value="organic">Organic</button>
-      <button type="button" data-value="traditional">Traditional</button>
-      <button type="button" data-value="regenerative">Regenerative</button>
-      <button type="button" data-value="unknown">I don't know</button>
+      <button type="button" data-value="Organic">Organic</button>
+      <button type="button" data-value="Conventional">Traditional</button>
+      <button type="button" data-value="Regenerative">Regenerative</button>
+      <button type="button" data-value="Unknown">I don't know</button>
     </div>
   </div>
 
@@ -197,12 +197,12 @@
   <div class="question">
     <h2>What is your surrounding ecosystem?</h2>
     <div class="button-group">
-      <button type="button" data-value="wetlands">Wetlands</button>
-      <button type="button" data-value="forest">Forest</button>
-      <button type="button" data-value="grasslands">Grasslands</button>
-      <button type="button" data-value="mountains">Mountains</button>
-      <button type="button" data-value="coastal">Coastal</button>
-      <button type="button" data-value="unknown">I don't know</button>
+      <button type="button" data-value="Forest">Forest</button>
+      <button type="button" data-value="Wetlands">Wetlands</button>
+      <button type="button" data-value="Grasslands">Grasslands</button>
+      <button type="button" data-value="Mountains">Mountains</button>
+      <button type="button" data-value="Coastal">Coastal</button>
+      <button type="button" data-value="Unknown">I don't know</button>
     </div>
   </div>
 
@@ -234,12 +234,7 @@
   <div class="chat-box">
     <h2>Chat with the AI</h2>
     <textarea placeholder="Ask a question..."></textarea>
-    <div class="button-group">
-      <button>What are the best ways to protect coffee plants?</button>
-      <button>How can I attract pollinators to my farm?</button>
-      <button>What pests commonly affect coffee crops?</button>
-      <button>How does forest proximity help coffee farming?</button>
-    </div>
+    <div class="button-group" id="pregenerated-questions"></div>
   </div>
 </div>
 
@@ -248,14 +243,23 @@
 
   // Handle text input for farm location
   document.getElementById('farmLocation').addEventListener('input', function () {
-    selectedAnswers['Farm Location'] = this.value;
+    selectedAnswers['Location'] = this.value;
   });
 
   // Add event listeners to buttons
   document.querySelectorAll('.button-group button').forEach(button => {
     button.addEventListener('click', function () {
       const questionGroup = this.closest('.question').querySelector('h2').textContent;
-      selectedAnswers[questionGroup] = this.getAttribute('data-value');
+
+      // Map question headings to desired JSON keys
+      const keyMap = {
+        'What do you farm?': 'Crop',
+        'What type of farming do you practice?': 'Agriculture',
+        'What is your surrounding ecosystem?': 'Ecosystem'
+      };
+
+      const key = keyMap[questionGroup] || questionGroup;
+      selectedAnswers[key] = this.getAttribute('data-value');
 
       // Highlight selected button
       this.parentNode.querySelectorAll('button').forEach(btn => {
