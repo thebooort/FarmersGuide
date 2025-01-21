@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from ollama import chat
+from pathlib import Path
+import csv
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -37,7 +39,7 @@ def receive_survey():
 def get_pregenerated_questions():
     # Dummy questions to be sent to the frontend
     questions = [
-        "What are the best ways to protect coffee plants lolololol?",
+        "What are the best ways to protect coffee plants?",
         "How can I attract pollinators to my farm?",
         "What pests commonly affect coffee crops?",
         "How does forest proximity help coffee farming?"
@@ -47,15 +49,25 @@ def get_pregenerated_questions():
 
 @app.route('/papers', methods=['GET'])
 def get_papers():
-    # Dummy paper titles to send to the frontend
-    papers = [
-        "Improving Coffee Yield Through Forest-Based Pollination uiuiuiuiuiu",
-        "Traditional Farming Techniques for Colombian Coffee",
-        "The Role of Forests in Supporting Coffee Ecosystems",
-        "Optimizing Coffee Harvests in Biodiverse Areas"
-    ]
-    return jsonify({'papers': papers}), 200
+    papers = []
+    try:
+        # Use Path to ensure compatibility across operating systems
+        file_path = Path('data') / 'data_with_answers.csv'
+        if not file_path.is_file():
+            raise FileNotFoundError(f"File not found: {file_path}")
 
+        with file_path.open(mode='r', encoding='utf-8') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip header row if it exists
+            for i, row in enumerate(csv_reader):
+                if i >= 3:  # Limit to top 3 rows
+                    break
+                papers.append(row[1])  # Assuming the second column contains the paper titles
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        return jsonify({'error': 'Failed to retrieve papers'}), 500
+
+    return jsonify({'papers': papers}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
