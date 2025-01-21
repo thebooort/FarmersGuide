@@ -251,7 +251,7 @@
     button.addEventListener('click', function () {
       const questionGroup = this.closest('.question').querySelector('h2').textContent;
 
-      // Map question headings to desired JSON keys
+      // Map question headings to JSON keys
       const keyMap = {
         'What do you farm?': 'Crop',
         'What type of farming do you practice?': 'Agriculture',
@@ -269,12 +269,38 @@
     });
   });
 
-  // Handle submit
+  // Function to submit survey data to the backend
+  function submitSurvey() {
+    const surveyData = {
+      Location: selectedAnswers['Location'] || 'N/A',
+      Crop: selectedAnswers['Crop'] || 'N/A',
+      Ecosystem: selectedAnswers['Ecosystem'] || 'N/A',
+      Agriculture: selectedAnswers['Agriculture'] || 'N/A',
+    };
+
+    console.log("📤 Sending Survey Data:", surveyData); // Debug log
+
+    // POST survey data to the backend
+    fetch("http://127.0.0.1:5001/survey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(surveyData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("✅ Survey Submission Response:", data); // Debug log
+      })
+      .catch((error) => {
+        console.error("❌ Error submitting survey data:", error);
+      });
+  }
+
+  // Handle the submit button
   document.getElementById('submitBtn').addEventListener('click', () => {
+    submitSurvey(); // Submit survey data to the backend
     document.getElementById('page1').classList.remove('active');
     document.getElementById('page2').classList.add('active');
   });
-
 
   // new Chat functionality
   const API_BASE_URL = "http://127.0.0.1:5001"; // Updated backend API
