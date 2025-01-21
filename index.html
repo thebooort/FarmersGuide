@@ -271,54 +271,127 @@
     document.getElementById('page2').classList.add('active');
   });
 
-  // Chat functionality
+
+  // new Chat functionality
+  const API_BASE_URL = "http://127.0.0.1:5001"; // Updated backend API
+
   const chatTextarea = document.querySelector('.chat-box textarea');
   const messagesDiv = document.createElement('div');
   messagesDiv.classList.add('messages');
   chatTextarea.parentNode.insertBefore(messagesDiv, chatTextarea);
 
+  let chatHistory = []; // Maintain session memory
+
   chatTextarea.addEventListener('keypress', async function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+      if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
 
-      const userMessage = chatTextarea.value.trim();
-      if (userMessage) {
-        // Display user message
-        const userMessageElement = document.createElement('p');
-        userMessageElement.classList.add('user');
-        userMessageElement.textContent = userMessage;
-        messagesDiv.appendChild(userMessageElement);
+          const userMessage = chatTextarea.value.trim();
+          if (userMessage) {
+              chatHistory.push({ role: "user", content: userMessage });
 
-        // Simulate AI response
-        const aiResponseElement = document.createElement('p');
-        aiResponseElement.classList.add('ai');
-        aiResponseElement.textContent = 'Thinking...'; // Placeholder while waiting for AI
-        messagesDiv.appendChild(aiResponseElement);
+              // Display user message
+              const userMessageElement = document.createElement('p');
+              userMessageElement.classList.add('user');
+              userMessageElement.textContent = userMessage;
+              messagesDiv.appendChild(userMessageElement);
 
-        // Scroll to bottom
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+              // Show "Thinking..." response
+              const aiResponseElement = document.createElement('p');
+              aiResponseElement.classList.add('ai');
+              aiResponseElement.textContent = "⏳ Thinking...";
+              messagesDiv.appendChild(aiResponseElement);
 
-        try {
-          // Send message to backend (replace URL with your actual endpoint)
-          const response = await fetch('http://127.0.0.1:5000/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
-          });
+              messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-          const data = await response.json();
-          aiResponseElement.textContent = data.response || 'No response from AI.';
-        } catch (err) {
-          console.error('Error fetching AI response:', err);
-          aiResponseElement.textContent = 'Error: Unable to contact AI.';
-        }
+              try {
+                  const response = await fetch(`${API_BASE_URL}/chat`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ message: userMessage })
+                  });
 
-        // Clear the input field
-        chatTextarea.value = '';
+                  // Ensure response is JSON
+                  const contentType = response.headers.get('content-type');
+                  if (!contentType || !contentType.includes('application/json')) {
+                      throw new Error("Server response is not JSON");
+                  }
+
+                  const data = await response.json();
+
+                  console.log("🔍 Full API Response:", data);  // Debugging Log
+
+                  // ✅ Ensure 'response' is extracted properly
+                  if (data && typeof data.response === "string") {
+                      aiResponseElement.textContent = String(data.response);  // Ensure it's a string
+                      chatHistory.push({ role: "ai", content: String(data.response) });
+                  } else {
+                      aiResponseElement.textContent = "⚠️ Unexpected response format.";
+                  }
+
+              } catch (err) {
+                  console.error('❌ Error fetching AI response:', err);
+                  aiResponseElement.textContent = "❌ Error: Unable to contact AI.";
+              }
+
+              chatTextarea.value = '';
+          }
       }
-    }
   });
-</script>
+
+
+
+
+
+
+  // Chat functionality
+//   const chatTextarea = document.querySelector('.chat-box textarea');
+//   const messagesDiv = document.createElement('div');
+//   messagesDiv.classList.add('messages');
+//   chatTextarea.parentNode.insertBefore(messagesDiv, chatTextarea);
+
+//   chatTextarea.addEventListener('keypress', async function (e) {
+//     if (e.key === 'Enter' && !e.shiftKey) {
+//       e.preventDefault();
+
+//       const userMessage = chatTextarea.value.trim();
+//       if (userMessage) {
+//         // Display user message
+//         const userMessageElement = document.createElement('p');
+//         userMessageElement.classList.add('user');
+//         userMessageElement.textContent = userMessage;
+//         messagesDiv.appendChild(userMessageElement);
+
+//         // Simulate AI response
+//         const aiResponseElement = document.createElement('p');
+//         aiResponseElement.classList.add('ai');
+//         aiResponseElement.textContent = 'Thinking...'; // Placeholder while waiting for AI
+//         messagesDiv.appendChild(aiResponseElement);
+
+//         // Scroll to bottom
+//         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+//         try {
+//           // Send message to backend (replace URL with your actual endpoint)
+//           const response = await fetch('http://127.0.0.1:5000/chat', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ message: userMessage })
+//           });
+
+//           const data = await response.json();
+//           aiResponseElement.textContent = data.response || 'No response from AI.';
+//         } catch (err) {
+//           console.error('Error fetching AI response:', err);
+//           aiResponseElement.textContent = 'Error: Unable to contact AI.';
+//         }
+
+//         // Clear the input field
+//         chatTextarea.value = '';
+//       }
+//     }
+//   });
+// </script>
 
 
 </body>
