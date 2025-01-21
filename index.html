@@ -173,12 +173,12 @@
   <div class="question">
     <h2>What do you farm?</h2>
     <div class="button-group">
-      <button type="button" data-value="coffee">Coffee</button>
-      <button type="button" data-value="wheat">Wheat</button>
-      <button type="button" data-value="rice">Rice</button>
-      <button type="button" data-value="maize">Maize</button>
-      <button type="button" data-value="soybeans">Soybeans</button>
-      <button type="button" data-value="unknown">I don't know</button>
+      <button type="button" data-value="Coffee">Coffee</button>
+      <button type="button" data-value="Wheat">Wheat</button>
+      <button type="button" data-value="Rice">Rice</button>
+      <button type="button" data-value="Maize">Maize</button>
+      <button type="button" data-value="Soybeans">Soybeans</button>
+      <button type="button" data-value="Unknown">I don't know</button>
     </div>
   </div>
 
@@ -186,10 +186,10 @@
   <div class="question">
     <h2>What type of farming do you practice?</h2>
     <div class="button-group">
-      <button type="button" data-value="organic">Organic</button>
-      <button type="button" data-value="traditional">Traditional</button>
-      <button type="button" data-value="regenerative">Regenerative</button>
-      <button type="button" data-value="unknown">I don't know</button>
+      <button type="button" data-value="Organic">Organic</button>
+      <button type="button" data-value="Conventional">Traditional</button>
+      <button type="button" data-value="Regenerative">Regenerative</button>
+      <button type="button" data-value="Unknown">I don't know</button>
     </div>
   </div>
 
@@ -197,12 +197,12 @@
   <div class="question">
     <h2>What is your surrounding ecosystem?</h2>
     <div class="button-group">
-      <button type="button" data-value="wetlands">Wetlands</button>
-      <button type="button" data-value="forest">Forest</button>
-      <button type="button" data-value="grasslands">Grasslands</button>
-      <button type="button" data-value="mountains">Mountains</button>
-      <button type="button" data-value="coastal">Coastal</button>
-      <button type="button" data-value="unknown">I don't know</button>
+      <button type="button" data-value="Forest">Forest</button>
+      <button type="button" data-value="Wetlands">Wetlands</button>
+      <button type="button" data-value="Grasslands">Grasslands</button>
+      <button type="button" data-value="Mountains">Mountains</button>
+      <button type="button" data-value="Coastal">Coastal</button>
+      <button type="button" data-value="Unknown">I don't know</button>
     </div>
   </div>
 
@@ -248,14 +248,23 @@
 
   // Handle text input for farm location
   document.getElementById('farmLocation').addEventListener('input', function () {
-    selectedAnswers['Farm Location'] = this.value;
+    selectedAnswers['Location'] = this.value;
   });
 
   // Add event listeners to buttons
   document.querySelectorAll('.button-group button').forEach(button => {
     button.addEventListener('click', function () {
       const questionGroup = this.closest('.question').querySelector('h2').textContent;
-      selectedAnswers[questionGroup] = this.getAttribute('data-value');
+
+      // Map question headings to desired JSON keys
+      const keyMap = {
+        'What do you farm?': 'Crop',
+        'What type of farming do you practice?': 'Agriculture',
+        'What is your surrounding ecosystem?': 'Ecosystem'
+      };
+
+      const key = keyMap[questionGroup] || questionGroup;
+      selectedAnswers[key] = this.getAttribute('data-value');
 
       // Highlight selected button
       this.parentNode.querySelectorAll('button').forEach(btn => {
@@ -266,60 +275,29 @@
   });
 
   // Handle submit
-  document.getElementById('submitBtn').addEventListener('click', () => {
-    document.getElementById('page1').classList.remove('active');
-    document.getElementById('page2').classList.add('active');
-  });
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    // Send the selected answers to the backen
+    try {
+      const response = await fetch('http://127.0.0.1:5000/survey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(selectedAnswers)
+      });
 
-  // Chat functionality
-  const chatTextarea = document.querySelector('.chat-box textarea');
-  const messagesDiv = document.createElement('div');
-  messagesDiv.classList.add('messages');
-  chatTextarea.parentNode.insertBefore(messagesDiv, chatTextarea);
-
-  chatTextarea.addEventListener('keypress', async function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-
-      const userMessage = chatTextarea.value.trim();
-      if (userMessage) {
-        // Display user message
-        const userMessageElement = document.createElement('p');
-        userMessageElement.classList.add('user');
-        userMessageElement.textContent = userMessage;
-        messagesDiv.appendChild(userMessageElement);
-
-        // Simulate AI response
-        const aiResponseElement = document.createElement('p');
-        aiResponseElement.classList.add('ai');
-        aiResponseElement.textContent = 'Thinking...'; // Placeholder while waiting for AI
-        messagesDiv.appendChild(aiResponseElement);
-
-        // Scroll to bottom
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-        try {
-          // Send message to backend (replace URL with your actual endpoint)
-          const response = await fetch('http://127.0.0.1:5000/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
-          });
-
-          const data = await response.json();
-          aiResponseElement.textContent = data.response || 'No response from AI.';
-        } catch (err) {
-          console.error('Error fetching AI response:', err);
-          aiResponseElement.textContent = 'Error: Unable to contact AI.';
-        }
-
-        // Clear the input field
-        chatTextarea.value = '';
+      if (response.ok) {
+        console.log('Survey submitted successfully:', selectedAnswers);
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.add('active');
+      } else {
+        console.error('Failed to submit survey:', await response.text());
       }
+    } catch (err) {
+      console.error('Error submitting survey:', err);
     }
   });
 </script>
-
 
 </body>
 </html>
