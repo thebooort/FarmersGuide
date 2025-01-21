@@ -234,12 +234,7 @@
   <div class="chat-box">
     <h2>Chat with the AI</h2>
     <textarea placeholder="Ask a question..."></textarea>
-    <div class="button-group">
-      <button>What are the best ways to protect coffee plants?</button>
-      <button>How can I attract pollinators to my farm?</button>
-      <button>What pests commonly affect coffee crops?</button>
-      <button>How does forest proximity help coffee farming?</button>
-    </div>
+    <div class="button-group" id="pregenerated-questions"></div>
   </div>
 </div>
 
@@ -276,7 +271,7 @@
 
   // Handle submit
   document.getElementById('submitBtn').addEventListener('click', async () => {
-    // Send the selected answers to the backen
+    // Send the selected answers to the backend
     try {
       const response = await fetch('http://127.0.0.1:5000/survey', {
         method: 'POST',
@@ -288,6 +283,21 @@
 
       if (response.ok) {
         console.log('Survey submitted successfully:', selectedAnswers);
+
+        // Fetch pregenerated questions from backend
+        const questionResponse = await fetch('http://127.0.0.1:5000/pregenerated-questions');
+        const questionData = await questionResponse.json();
+
+        // Populate the pregenerated questions
+        const questionContainer = document.getElementById('pregenerated-questions');
+        questionContainer.innerHTML = '';
+        questionData.questions.forEach(question => {
+          const button = document.createElement('button');
+          button.textContent = question;
+          button.classList.add('question-button');
+          questionContainer.appendChild(button);
+        });
+
         document.getElementById('page1').classList.remove('active');
         document.getElementById('page2').classList.add('active');
       } else {

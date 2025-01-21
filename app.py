@@ -33,6 +33,17 @@ def receive_survey():
 
     return jsonify({'message': 'Survey data received successfully!', 'data': survey_data}), 200
 
+@app.route('/pregenerated-questions', methods=['GET'])
+def get_pregenerated_questions():
+    # Dummy questions to be sent to the frontend
+    questions = [
+        "What are the best ways to protect coffee plants lolololol?",
+        "How can I attract pollinators to my farm?",
+        "What pests commonly affect coffee crops?",
+        "How does forest proximity help coffee farming?"
+    ]
+
+    return jsonify({'questions': questions}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
