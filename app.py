@@ -37,13 +37,20 @@ def receive_survey():
 
 @app.route('/pregenerated-questions', methods=['GET'])
 def get_pregenerated_questions():
-    # Dummy questions to be sent to the frontend
-    questions = [
-        "What are the best ways to protect coffee plants?",
-        "How can I attract pollinators to my farm?",
-        "What pests commonly affect coffee crops?",
-        "How does forest proximity help coffee farming?"
-    ]
+    questions = []
+    try:
+        # Use Path to ensure compatibility across operating systems
+        file_path = Path('data') / 'data_with_answers.csv'
+        if not file_path.is_file():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        with file_path.open(mode='r', encoding='utf-8') as file:
+            csv_reader = csv.reader(file)
+            header = next(csv_reader)  # Get the header row
+            questions = header[9:13]  # Columns 10-13 (0-indexed)
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        return jsonify({'error': 'Failed to retrieve questions'}), 500
 
     return jsonify({'questions': questions}), 200
 
