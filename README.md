@@ -1,4 +1,7 @@
 
+![FarmersGuide](images/logo.png)
+
+
 # FarmersGuide: Harnessing Plant-Insect Research for Sustainable Farming
 
 ## Overview
