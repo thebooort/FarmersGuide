@@ -45,5 +45,17 @@ def get_pregenerated_questions():
 
     return jsonify({'questions': questions}), 200
 
+@app.route('/papers', methods=['GET'])
+def get_papers():
+    # Dummy paper titles to send to the frontend
+    papers = [
+        "Improving Coffee Yield Through Forest-Based Pollination uiuiuiuiuiu",
+        "Traditional Farming Techniques for Colombian Coffee",
+        "The Role of Forests in Supporting Coffee Ecosystems",
+        "Optimizing Coffee Harvests in Biodiverse Areas"
+    ]
+    return jsonify({'papers': papers}), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)
