@@ -2,14 +2,13 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain.vectorstores import Chroma
-from langchain.embeddings import OpenAIEmbeddings
+from chromadb import PersistentClient
+from langchain_community.embeddings import OpenAIEmbeddings
 
 # Load environment variables
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Ensure API key is loaded
 if not OPENAI_API_KEY:
     raise ValueError("❌ OPENAI_API_KEY is missing. Check your .env file.")
 
@@ -29,18 +28,29 @@ SYSTEM_MESSAGE = SystemMessage(
     """
 )
 
-# Initialize ChromaDB for RAG retrieval
-embedding_function = OpenAIEmbeddings()
-vector_store = Chroma(persist_directory="./backend/chroma_db", embedding_function=embedding_function)
-retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+# ChromaDB Path
+CHROMA_DB_PATH = os.path.join(os.path.dirname(__file__), "../database/chroma_db")
 
-def generate_response(user_query: str, chat_history: list = None) -> dict:
+# Initialize ChromaDB client
+try:
+    client = PersistentClient(path=CHROMA_DB_PATH)
+    collection = client.get_or_create_collection(name="research_papers")
+    print(f"✅ Successfully connected to ChromaDB at: {CHROMA_DB_PATH}")
+except Exception as e:
+    raise RuntimeError(f"❌ Failed to connect to ChromaDB: {str(e)}")
+
+# Initialize OpenAI Embeddings
+embedding_function = OpenAIEmbeddings(model="text-embedding-ada-002", openai_api_key=OPENAI_API_KEY)
+
+
+def generate_response(user_query: str, chat_history: list = None, survey_context: dict = None) -> dict:
     """
-    Generates a response using GPT-4o Mini, incorporating relevant RAG documents.
+    Generates a response using GPT-4o Mini, incorporating relevant RAG documents and survey context.
 
     Args:
-        user_query (str): User's question.
+        user_query (str): User's question, including context.
         chat_history (list): Previous chat messages for context (optional).
+        survey_context (dict): Survey data from the user (optional).
 
     Returns:
         dict: AI response in JSON format.
@@ -56,18 +66,51 @@ def generate_response(user_query: str, chat_history: list = None) -> dict:
                 messages.append(AIMessage(content=entry["content"]))
 
     # Retrieve relevant documents from ChromaDB
-    retrieved_docs = retriever.invoke(user_query)
-    retrieved_texts = "\n".join([doc.page_content for doc in retrieved_docs])
+    try:
+        query_embedding = embedding_function.embed_query(user_query)
+        results = collection.query(query_embeddings=[query_embedding], n_results=3)
+        retrieved_docs = results["documents"]
+        
+        # Flatten the retrieved document lists into strings
+        retrieved_texts = "\n".join(["\n".join(doc) if isinstance(doc, list) else doc for doc in retrieved_docs]) if retrieved_docs else "No relevant documents found."
+    except Exception as e:
+        print(f"❌ Retrieval error: {str(e)}")
+        retrieved_texts = "Error retrieving documents from ChromaDB."
 
-    # Append retrieved context to user query
+    # Log retrieved documents for debugging
+    print("\n🔍 Retrieved Documents:")
+    if retrieved_docs:
+        for idx, doc in enumerate(retrieved_docs, 1):
+            print(f"🔹 Document {idx}: {doc[:200]}...")  # Print first 200 characters
+    else:
+        print("❌ No relevant documents retrieved.")
+
+    # Add survey context to the augmented query
+    survey_context_str = "No survey data available."
+    if survey_context:
+        survey_context_str = f"""
+        Farmer Information:
+        - Location: {survey_context.get('Location', 'N/A')}
+        - Crop: {survey_context.get('Crop', 'N/A')}
+        - Ecosystem: {survey_context.get('Ecosystem', 'N/A')}
+        - Agriculture Type: {survey_context.get('Agriculture', 'N/A')}
+        """
+
+    # Append retrieved context and survey context to user query
     augmented_query = f"""
     --- Relevant Research Papers ---
     {retrieved_texts}
+    ------------------------------
+    {survey_context_str}
     ------------------------------
     User Question: {user_query}
     """
 
     messages.append(HumanMessage(content=augmented_query))
+
+    # Log full context sent to the model
+    print("\n🔍 Full Context Sent to LLM:")
+    print(augmented_query)
 
     try:
         # Invoke GPT-4o Mini
