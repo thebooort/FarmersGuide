@@ -126,9 +126,14 @@
       margin-bottom: 10px;
     }
 
+    /* Add spacing between bullet points */
     .paper-list ul {
       list-style: disc inside;
       padding-left: 20px;
+    }
+
+    .paper-list ul li {
+      margin-bottom: 15px; /* Extra spacing */
     }
 
     .advice-box {
@@ -155,6 +160,28 @@
 
     .chat-box .button-group {
       margin-top: 10px;
+    }
+
+    /* Contact Button styling */
+    .contact-button {
+      margin-left: 10px;
+      background-color: #adb5bd;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .contact-button:hover {
+      background-color: #868e96;
+      transform: scale(1.05);
+    }
+
+    .contact-button:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
@@ -217,10 +244,20 @@
   <div class="paper-list">
     <h2>Relevant Papers</h2>
     <ul>
-      <li>"Improving Coffee Yield Through Forest-Based Pollination"</li>
-      <li>"Traditional Farming Techniques for Colombian Coffee"</li>
-      <li>"The Role of Forests in Supporting Coffee Ecosystems"</li>
-      <li>"Optimizing Coffee Harvests in Biodiverse Areas"</li>
+      <!-- These are placeholders. We will populate them dynamically using fetch, 
+           but for demonstration, here's how the final HTML structure will look: -->
+      <li>"Improving Coffee Yield Through Forest-Based Pollination"
+        <button class="contact-button" data-paper-title="Improving Coffee Yield Through Forest-Based Pollination">Contact</button>
+      </li>
+      <li>"Traditional Farming Techniques for Colombian Coffee"
+        <button class="contact-button" data-paper-title="Traditional Farming Techniques for Colombian Coffee">Contact</button>
+      </li>
+      <li>"The Role of Forests in Supporting Coffee Ecosystems"
+        <button class="contact-button" data-paper-title="The Role of Forests in Supporting Coffee Ecosystems">Contact</button>
+      </li>
+      <li>"Optimizing Coffee Harvests in Biodiverse Areas"
+        <button class="contact-button" data-paper-title="Optimizing Coffee Harvests in Biodiverse Areas">Contact</button>
+      </li>
     </ul>
   </div>
 
@@ -299,7 +336,7 @@
       const responseData = await surveyResponse.json();
       console.log("✅ Survey submitted successfully:", responseData);
 
-      // 3a. Fetch pregenerated questions (from HEAD commit)
+      // 3a. Fetch pregenerated questions
       const questionResponse = await fetch('http://127.0.0.1:5000/pregenerated-questions');
       const questionData = await questionResponse.json();
       // Populate pregenerated questions in the DOM
@@ -312,7 +349,7 @@
         questionContainer.appendChild(button);
       });
 
-      // 3b. Fetch paper titles (from HEAD commit)
+      // 3b. Fetch paper titles
       const paperResponse = await fetch('http://127.0.0.1:5000/papers');
       const paperData = await paperResponse.json();
       // Populate paper titles in the DOM
@@ -321,10 +358,18 @@
       paperData.papers.forEach(title => {
         const listItem = document.createElement('li');
         listItem.textContent = title;
+
+        // Add the Contact button
+        const contactButton = document.createElement('button');
+        contactButton.classList.add('contact-button');
+        contactButton.dataset.paperTitle = title; 
+        contactButton.textContent = 'Contact';
+        listItem.appendChild(contactButton);
+
         paperList.appendChild(listItem);
       });
 
-      // 3c. Switch to the results page (from HEAD commit)
+      // 3c. Switch to the results page
       document.getElementById('page1').classList.remove('active');
       document.getElementById('page2').classList.add('active');
 
@@ -398,6 +443,28 @@
       }
     }
   });
+
+  //contact button event listener
+  document.addEventListener('click', async function (event) {
+  if (event.target.classList.contains('contact-button')) {
+    const paperTitle = event.target.dataset.paperTitle;
+    try {
+      const response = await fetch(`${API_BASE_URL}/paper-author?title=${encodeURIComponent(paperTitle)}`);
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Contact the author of "${paperTitle}" at: ${data.email}`);
+      } else {
+        // e.g. { error: 'No author found...' }
+        alert(`Error: ${data.error || 'Unable to fetch contact email'}`);
+      }
+    } catch (err) {
+      console.error('❌ Error fetching author email:', err);
+      alert('❌ Error: Unable to contact server.');
+    }
+  }
+});
+
+
 </script>
 
 </body>
