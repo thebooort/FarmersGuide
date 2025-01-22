@@ -16,14 +16,15 @@ if not OPENAI_API_KEY:
 llm = ChatOpenAI(
     model="gpt-4o",
     temperature=0.7,
-    openai_api_key=OPENAI_API_KEY
+    openai_api_key= OPENAI_API_KEY
 )
 
 # System message for AI context
 SYSTEM_MESSAGE = SystemMessage(
     content="""You are an AI-powered farming assistant, providing expert advice on agricultural practices based on scientific research.
     Use reliable sources, retrieved documents, and best practices to answer user queries.
-    If unsure, acknowledge uncertainty rather than generating incorrect information.
+    If unsure, acknowledge uncertainty rather than generating incorrect information. Do not format the answer, use plain text.
+    Return two paragraphs at maximum, and avoid long-winded responses.
     """
 )
 
