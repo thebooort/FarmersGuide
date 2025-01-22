@@ -26,6 +26,9 @@ def chat_with_ai():
 def receive_survey():
     survey_data = request.json
 
+    print("\n📥 Raw Survey Data Received:")
+    print(survey_data)
+
     # Log the survey data for debugging purposes
     print("Survey Data Received:")
     print(f"Location: {survey_data.get('Location', 'N/A')}")
