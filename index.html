@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EcoHack App</title>
+  <title>FarmGuide App</title>
   <style>
     /* General Reset */
     body {
@@ -238,7 +238,7 @@
 </div>
 
 <div class="container page" id="page2">
-  <h1>EcoHack Results</h1>
+  <img src="images/logo.png" alt="FarmGuide Logo" style="width:100%; height:auto;">
 
   <!-- Paper Titles -->
   <div class="paper-list">
@@ -336,6 +336,20 @@
       const responseData = await surveyResponse.json();
       console.log("✅ Survey submitted successfully:", responseData);
 
+          // POST survey data to the backend
+      fetch("http://127.0.0.1:5001/survey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(surveyData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("✅ Survey Submission Response:", data); // Debug log
+        })
+        .catch((error) => {
+          console.error("❌ Error submitting survey data:", error);
+        });
+
       // 3a. Fetch pregenerated questions
       const questionResponse = await fetch('http://127.0.0.1:5000/pregenerated-questions');
       const questionData = await questionResponse.json();
@@ -385,7 +399,7 @@
 
 
   // ~~~ The new Chat functionality remains unchanged below ~~~
-  const API_BASE_URL = "http://127.0.0.1:5000"; // for the /chat endpoint
+  const API_BASE_URL = "http://127.0.0.1:5001"; // for the /chat endpoint
   const chatTextarea = document.querySelector('.chat-box textarea');
   const messagesDiv = document.createElement('div');
   messagesDiv.classList.add('messages');
