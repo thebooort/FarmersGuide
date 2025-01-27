@@ -127,11 +127,10 @@ FarmersGuide specializes in analyzing research papers related to plant-insect in
    ```bash
    python -m http.server
    ```
-
+3. Open the App in your Browser:
+Go to: http://127.0.0.1:8000/ to play with the app in your browser.
 ---
 
-#### Open the App in your Browser:
-Go to: http://127.0.0.1:8000/ to play with the app in your browser.
 
 ## Tools & Technologies
 
