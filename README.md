@@ -57,6 +57,79 @@ FarmersGuide specializes in analyzing research papers related to plant-insect in
     - Natural Language Q&A:
         Use LLMs to synthesize data from matched papers and answer farmer questions in an accessible format.
 
+
+## Run the Code
+
+### Setting Up the Environment
+
+#### Prerequisites
+1. Clone the repository:
+   ```bash
+   git clone <repository_url>
+   cd FarmersGuide
+   ```
+
+2. Ensure you have Python 3.9+ installed.
+
+3. Add your OpenAI API key to `/backend/.venv` in the following format:
+   ```env
+   OPENAI_API_KEY="your_api_key"
+   ```
+
+---
+
+### Running the Project
+
+#### Terminal 1: Backend Setup
+1. Navigate to the project directory:
+   ```bash
+   cd /FarmersGuide
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Start the backend server:
+   ```bash
+   python backend/server.py
+   ```
+
+---
+
+#### Terminal 2: Application Server
+1. Navigate to the project directory:
+   ```bash
+   cd /FarmersGuide
+   ```
+
+2. Run the application server:
+   ```bash
+   python app.py
+   ```
+
+---
+
+#### Terminal 3: Frontend Server
+1. Navigate to the project directory:
+   ```bash
+   cd /FarmersGuide
+   ```
+
+2. Start the static file server:
+   ```bash
+   python -m http.server
+   ```
+
+---
+
 ## Tools & Technologies
 
 
